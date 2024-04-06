@@ -1,0 +1,9 @@
+version: "2"
+sql:
+  - engine: "postgresql"  # 用什麼Sql server
+    queries: "db/queries" # query的sql放在哪
+    schema: "db/migrations" # schema位置
+    gen:
+      go:
+        package: "sqlc" # 產出來的golang code package name
+        out: "db/sqlc" # golang code位置
