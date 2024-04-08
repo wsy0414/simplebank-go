@@ -15,4 +15,7 @@ migratedown:
 sqlc:
 	sqlc generate
 
-.PHONY: postgres createdb migrateup migratedown sqlc
+server:
+	go run main.go
+
+.PHONY: postgres createdb migrateup migratedown sqlc server
