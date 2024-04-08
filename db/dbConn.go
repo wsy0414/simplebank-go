@@ -4,15 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	"simplebank/config"
 	"simplebank/db/sqlc"
 	"sync"
 
 	_ "github.com/lib/pq"
-)
-
-const (
-	driver       = "postgres"
-	driverSource = "postgresql://root:root@localhost:5432/simple_bank?sslmode=disable"
 )
 
 var db *sql.DB
@@ -27,7 +23,11 @@ type ConnData struct {
 func GetQuery() (*ConnData, error) {
 	once.Do(func() {
 		log.Println("craete db connection!!!!!!")
-		d, ee := sql.Open(driver, driverSource)
+		c, err := config.LoadConfig()
+		if err != nil {
+			return
+		}
+		d, ee := sql.Open(c.Database.Driver, c.Database.Source)
 		if ee != nil {
 			log.Print(ee)
 			return

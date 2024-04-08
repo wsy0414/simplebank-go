@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+	"simplebank/config"
 	"simplebank/controller"
 
 	"github.com/gin-gonic/gin"
@@ -11,5 +13,11 @@ func main() {
 
 	router.GET("/", controller.HelloWorld)
 
-	router.Run(":8080")
+	c, err := config.LoadConfig()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	router.Run(c.Server.Port)
 }

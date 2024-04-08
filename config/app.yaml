@@ -1,0 +1,5 @@
+db:
+  driverName: postgres
+  source: postgresql://root:root@localhost:5432/simple_bank?sslmode=disable
+server:
+  port: :8080
