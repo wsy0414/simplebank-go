@@ -11,7 +11,7 @@ import (
 func main() {
 	router := gin.Default()
 
-	router.GET("/", controller.HelloWorld)
+	loadRouter(router)
 
 	c, err := config.LoadConfig()
 	if err != nil {
@@ -20,4 +20,9 @@ func main() {
 	}
 
 	router.Run(c.Server.Port)
+}
+
+func loadRouter(router *gin.Engine) {
+	router.POST("/signup", controller.SignUp)
+
 }

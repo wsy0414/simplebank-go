@@ -13,11 +13,11 @@ func HandleTransaction(db *sql.DB, f func(sqlc.Queries) error) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
 
 	q := sqlc.New(tx)
 	err = f(*q)
 	if err != nil {
+		tx.Rollback()
 		return err
 	}
 
