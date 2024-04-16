@@ -44,5 +44,5 @@ func GetQuery() (*ConnData, error) {
 		return nil, connErr
 	}
 
-	return &ConnData{conn, sqlc.New(conn)}, nil
+	return &ConnData{conn, sqlc.New(db)}, nil
 }

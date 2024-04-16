@@ -1,0 +1,2 @@
+ALTER TABLE users
+DROP CONSTRAINT uk_name UNIQUE (name);

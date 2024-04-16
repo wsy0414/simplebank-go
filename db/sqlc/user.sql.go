@@ -7,7 +7,44 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 )
+
+const createUser = `-- name: CreateUser :one
+insert into users(
+    name,
+    password,
+    email,
+    birthdate
+) values($1, $2, $3, $4)
+RETURNING id, name, password, email, birthdate, created_at
+`
+
+type CreateUserParams struct {
+	Name      string
+	Password  string
+	Email     string
+	Birthdate sql.NullTime
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, createUser,
+		arg.Name,
+		arg.Password,
+		arg.Email,
+		arg.Birthdate,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Password,
+		&i.Email,
+		&i.Birthdate,
+		&i.CreatedAt,
+	)
+	return i, err
+}
 
 const getUser = `-- name: GetUser :one
 SELECT id, name, password, email, birthdate, created_at FROM users
@@ -16,6 +53,25 @@ WHERE id = $1 LIMIT 1
 
 func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUser, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Password,
+		&i.Email,
+		&i.Birthdate,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getUserByName = `-- name: GetUserByName :one
+SELECT id, name, password, email, birthdate, created_at FROM users
+WHERE name = $1
+`
+
+func (q *Queries) GetUserByName(ctx context.Context, name string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByName, name)
 	var i User
 	err := row.Scan(
 		&i.ID,
