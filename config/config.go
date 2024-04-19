@@ -1,6 +1,8 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"github.com/spf13/viper"
+)
 
 type Database struct {
 	Driver string `mapstructure:"driverName"`
@@ -16,20 +18,20 @@ type Config struct {
 	Server   Server   `mapstructure:"server"`
 }
 
-func LoadConfig() (config *Config, err error) {
+var ConfigVal Config
+
+func init() {
 	viper.AddConfigPath("./config")
 	viper.SetConfigName("app")
 	viper.SetConfigType("yaml")
 
-	err = viper.ReadInConfig()
+	err := viper.ReadInConfig()
 	if err != nil {
-		return
+		panic("read config file error")
 	}
 
-	err = viper.Unmarshal(&config)
+	err = viper.Unmarshal(&ConfigVal)
 	if err != nil {
-		return
+		panic("unmarshal config failed")
 	}
-
-	return
 }

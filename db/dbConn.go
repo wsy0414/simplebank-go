@@ -23,11 +23,7 @@ type ConnData struct {
 func GetQuery() (*ConnData, error) {
 	once.Do(func() {
 		log.Println("craete db connection!!!!!!")
-		c, err := config.LoadConfig()
-		if err != nil {
-			return
-		}
-		d, ee := sql.Open(c.Database.Driver, c.Database.Source)
+		d, ee := sql.Open(config.ConfigVal.Database.Driver, config.ConfigVal.Database.Source)
 		if ee != nil {
 			log.Print(ee)
 			return

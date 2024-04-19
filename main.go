@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"log"
 	"simplebank/api"
 	"simplebank/api/controller"
 	"simplebank/api/service"
@@ -17,28 +16,35 @@ import (
 func main() {
 	router := gin.Default()
 
-	c, err := config.LoadConfig()
+	validatorRegister()
+
+	db := connDB()
+
+	implController(router, db)
+
+	router.Run(config.ConfigVal.Server.Port)
+}
+
+func connDB() *sql.DB {
+	db, err := sql.Open(config.ConfigVal.Database.Driver, config.ConfigVal.Database.Source)
 	if err != nil {
-		log.Println(err)
-		return
+		panic(err.Error())
 	}
 
-	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		v.RegisterValidation("passwordValidate", api.PasswordValidator)
-	}
+	return db
+}
 
-	db, err := sql.Open(c.Database.Driver, c.Database.Source)
-	if err != nil {
-		log.Print(err)
-		return
-	}
-	log.Println("init")
+func implController(router *gin.Engine, db *sql.DB) {
 	// DI
 	userService := service.NewUserService(db)
 	controller.NewUserController(router, userService)
 
 	activityService := service.NewActivityService(db)
 	controller.NewActivityController(activityService, router)
+}
 
-	router.Run(c.Server.Port)
+func validatorRegister() {
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		v.RegisterValidation("passwordValidate", api.PasswordValidator)
+	}
 }
