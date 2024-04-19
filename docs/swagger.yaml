@@ -1,0 +1,66 @@
+definitions:
+  model.SignUpRequestParam:
+    properties:
+      birthdate:
+        type: string
+      email:
+        description: 幣種
+        type: string
+      name:
+        description: 帳號
+        type: string
+      password:
+        description: 密碼
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  model.SignUpResponse:
+    properties:
+      id:
+        type: integer
+      token:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a simple bank server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger SimpleBank API
+  version: "1.0"
+paths:
+  /signup:
+    post:
+      consumes:
+      - application/json
+      description: SignUp a Guest Account
+      parameters:
+      - description: Account ID
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.SignUpRequestParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SignUpResponse'
+      summary: SignUp
+      tags:
+      - accounts
+swagger: "2.0"

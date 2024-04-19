@@ -23,12 +23,21 @@ func NewUserController(router *gin.Engine, userService service.UserService) {
 	controller := &userController{
 		userService: userService,
 	}
-
 	router.POST("/signup", controller.SignUp)
 	router.POST("/login", controller.Login)
 	router.GET("/user", middleware.CheckToken(), controller.GetUserInfo)
 }
 
+// Signup godoc
+//
+//	@Summary		SignUp
+//	@Description	SignUp a Guest Account
+//	@Tags			accounts
+//	@Accept			json
+//	@Produce		json
+//	@Param			payload	body		model.SignUpRequestParam	true	"Account ID"
+//	@Success		200		{object}	model.SignUpResponse
+//	@Router			/signup [post]
 func (uc userController) SignUp(ctx *gin.Context) {
 	var param model.SignUpRequestParam
 	if err := ctx.ShouldBindJSON(&param); err != nil {
