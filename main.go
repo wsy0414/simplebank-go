@@ -37,5 +37,8 @@ func main() {
 	userService := service.NewUserService(db)
 	controller.NewUserController(router, userService)
 
+	activityService := service.NewActivityService(db)
+	controller.NewActivityController(activityService, router)
+
 	router.Run(c.Server.Port)
 }

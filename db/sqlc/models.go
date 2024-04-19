@@ -9,11 +9,10 @@ import (
 	"time"
 )
 
-type Activity struct {
-	ID         int32
-	FromUserID int32
-	ToUserID   int32
-	// just postive
+type ActivityLog struct {
+	ID     int32
+	UserID int32
+	// postive or negative
 	Amount    string
 	CreatedAt time.Time
 }
@@ -26,10 +25,11 @@ type Balance struct {
 	CreatedAt time.Time
 }
 
-type Transfer struct {
-	ID     int32
-	UserID int32
-	// postive or negative
+type TransferLog struct {
+	ID         int32
+	FromUserID int32
+	ToUserID   int32
+	// just postive
 	Amount    string
 	CreatedAt time.Time
 }

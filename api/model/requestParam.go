@@ -16,3 +16,8 @@ type LoginRequestParam struct {
 	Name     string `json:"name" binding:"required"`
 	Password string `json:"password" binding:"required,passwordValidate"`
 }
+
+type DepositeRequestParam struct {
+	Currency string  `json:"currency" binding:"required"`
+	Amount   float64 `json:"amount" binding:"required,gt=0"`
+}

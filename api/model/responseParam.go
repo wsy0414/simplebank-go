@@ -22,3 +22,8 @@ type Balance struct {
 	Currency string `json:"currency"`
 	Balance  string `json:"balance"`
 }
+
+type DepositeResponse struct {
+	Currency string `json:"currency"`
+	Balance  string `json:"balance"`
+}
