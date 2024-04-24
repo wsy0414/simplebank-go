@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 type SignUpResponse struct {
 	ID    int    `json:"id"`
 	Token string `json:"token"`
@@ -18,12 +20,38 @@ type GetUserInfoResponse struct {
 	Balance   []Balance  `json:"balance"`
 }
 
+type BalanceResponse struct {
+	Currency string `json:"currency"`
+	Balance  string `json:"balance"`
+}
+
+type CreateBalanceResponse struct {
+	BalanceResponse
+}
+
+type GetBalanceResponse struct {
+	BalanceResponse
+}
+
 type Balance struct {
 	Currency string `json:"currency"`
 	Balance  string `json:"balance"`
 }
 
 type DepositeResponse struct {
-	Currency string `json:"currency"`
-	Balance  string `json:"balance"`
+	BalanceResponse
+}
+
+type WithdrawResponse struct {
+	BalanceResponse
+}
+
+type TransferResponse struct {
+	BalanceResponse
+}
+
+type ListActivityResponse struct {
+	UserId   int       `json:"userId"`
+	Amount   string    `json:"amount"`
+	CreateAt time.Time `json:"createAt"`
 }

@@ -17,7 +17,25 @@ type LoginRequestParam struct {
 	Password string `json:"password" binding:"required,passwordValidate"`
 }
 
-type DepositeRequestParam struct {
-	Currency string  `json:"currency" binding:"required"`
+type CreateBalanceRequest struct {
+	Currency string  `json:"currency" binding:"required,currencyValidate"`
+	Amount   float64 `json:"amount" binding:"required,gte=0"`
+}
+
+type BalanceRequest struct {
+	Currency string  `json:"currency" binding:"required,currencyValidate"`
 	Amount   float64 `json:"amount" binding:"required,gt=0"`
+}
+
+type DepositeRequestParam struct {
+	BalanceRequest
+}
+
+type WithdrawRequestParam struct {
+	BalanceRequest
+}
+
+type TransferRequestParam struct {
+	ToUserId int `json:"toUserId" binding:"required"`
+	BalanceRequest
 }

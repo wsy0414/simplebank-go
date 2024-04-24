@@ -1,6 +1,7 @@
 package api
 
 import (
+	"simplebank/enum"
 	"unicode"
 
 	"github.com/go-playground/validator/v10"
@@ -33,6 +34,17 @@ var PasswordValidator validator.Func = func(fieldVal validator.FieldLevel) bool 
 		}
 
 		return hasLowerCase && hasUpperCase && hasDigit && hasNoMark
+	}
+
+	return false
+}
+
+var CurrencyValidator validator.Func = func(fieldVal validator.FieldLevel) bool {
+	if currency, ok := fieldVal.Field().Interface().(string); ok {
+		if len(currency) == 0 {
+			return false
+		}
+		return enum.IsCurrencyValid(currency)
 	}
 
 	return false

@@ -1,6 +1,9 @@
 package config
 
 import (
+	"fmt"
+	"simplebank/flags"
+
 	"github.com/spf13/viper"
 )
 
@@ -20,14 +23,20 @@ type Config struct {
 
 var ConfigVal Config
 
-func init() {
-	viper.AddConfigPath("./config")
-	viper.SetConfigName("app")
+func LoadConfig(prePath string) {
+
+	viper.AddConfigPath(prePath)
+	configName := "app"
+	if flags.ENV != "" {
+		configName += ("_" + flags.ENV)
+	}
+	fmt.Println("configName:", configName)
+	viper.SetConfigName(configName)
 	viper.SetConfigType("yaml")
 
 	err := viper.ReadInConfig()
 	if err != nil {
-		panic("read config file error")
+		panic(err)
 	}
 
 	err = viper.Unmarshal(&ConfigVal)

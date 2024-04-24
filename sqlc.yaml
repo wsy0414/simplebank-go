@@ -7,3 +7,4 @@ sql:
       go:
         package: "sqlc" # 產出來的golang code package name
         out: "db/sqlc" # golang code位置
+        emit_interface: true

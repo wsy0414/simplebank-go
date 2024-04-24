@@ -3,18 +3,12 @@ package main
 import (
 	"database/sql"
 	"simplebank/api"
-	"simplebank/api/controller"
-	"simplebank/api/service"
 	"simplebank/config"
-
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+	"simplebank/db/sqlc"
+	_ "simplebank/flags"
 
 	_ "simplebank/docs"
 
-	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
-	"github.com/go-playground/validator/v10"
 	_ "github.com/lib/pq"
 )
 
@@ -32,20 +26,14 @@ import (
 
 //	@host	localhost:8080
 
-//	@externalDocs.description	OpenAPI
-//	@externalDocs.url			https://swagger.io/resources/open-api/
+// @externalDocs.description	OpenAPI
+// @externalDocs.url			https://swagger.io/resources/open-api/
 func main() {
-	router := gin.Default()
-
-	validatorRegister()
-
+	config.LoadConfig("./config")
 	db := connDB()
+	server := api.NewServer(sqlc.NewStore(db))
 
-	implController(router, db)
-
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
-	router.Run(config.ConfigVal.Server.Port)
+	server.Run(config.ConfigVal.Server.Port)
 }
 
 // connDB return a sql package's DB implement
@@ -56,21 +44,4 @@ func connDB() *sql.DB {
 	}
 
 	return db
-}
-
-// implController use to dynamic import contorller
-func implController(router *gin.Engine, db *sql.DB) {
-	// DI
-	userService := service.NewUserService(db)
-	controller.NewUserController(router, userService)
-
-	activityService := service.NewActivityService(db)
-	controller.NewActivityController(activityService, router)
-}
-
-// validatorRegister use to register custom validator
-func validatorRegister() {
-	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		v.RegisterValidation("passwordValidate", api.PasswordValidator)
-	}
 }

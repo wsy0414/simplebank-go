@@ -121,6 +121,33 @@ func (q *Queries) GetSpecifyCurrencyBalanceByUser(ctx context.Context, arg GetSp
 	return i, err
 }
 
+const inserOrUpdateBalance = `-- name: InserOrUpdateBalance :one
+insert into balance(user_id, currency, balance)
+values($1, $2, $3)
+on conflict on constraint uk_user_id_currency
+do update set balance = excluded.balance
+RETURNING id, user_id, currency, balance, created_at
+`
+
+type InserOrUpdateBalanceParams struct {
+	UserID   int32
+	Currency string
+	Balance  string
+}
+
+func (q *Queries) InserOrUpdateBalance(ctx context.Context, arg InserOrUpdateBalanceParams) (Balance, error) {
+	row := q.db.QueryRowContext(ctx, inserOrUpdateBalance, arg.UserID, arg.Currency, arg.Balance)
+	var i Balance
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Currency,
+		&i.Balance,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const subBalance = `-- name: SubBalance :one
 update balance set
     balance = balance - $1

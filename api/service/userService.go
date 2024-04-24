@@ -1,36 +1,36 @@
 package service
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"simplebank/api/model"
+	"simplebank/customError"
 	"simplebank/db/sqlc"
 	"simplebank/util"
-
-	"github.com/gin-gonic/gin"
 )
 
 type UserService interface {
-	SignUp(*gin.Context, *model.SignUpRequestParam) (model.SignUpResponse, error)
-	Login(*gin.Context, *model.LoginRequestParam) (model.LoginResponse, error)
-	GetUserInfo(*gin.Context, int) (model.GetUserInfoResponse, error)
+	SignUp(context.Context, *model.SignUpRequestParam) (model.SignUpResponse, error)
+	Login(context.Context, *model.LoginRequestParam) (model.LoginResponse, error)
+	GetUserInfo(context.Context, int) (model.GetUserInfoResponse, error)
 }
 
 type userService struct {
-	repo *sqlc.Queries
+	repo sqlc.Store
 }
 
-func NewUserService(db *sql.DB) UserService {
+func NewUserService(store sqlc.Store) UserService {
 	return &userService{
-		repo: sqlc.New(db),
+		repo: store,
 	}
 }
 
-func (us userService) SignUp(ctx *gin.Context, param *model.SignUpRequestParam) (response model.SignUpResponse, err error) {
+func (us userService) SignUp(ctx context.Context, param *model.SignUpRequestParam) (response model.SignUpResponse, err error) {
 	// encrypt password
 	pwd, err := util.EncryptPassword(param.Password)
 	if err != nil {
-		return
+		return response, customError.NewInternalError(err)
 	}
 
 	createUserParam := &sqlc.CreateUserParams{
@@ -44,13 +44,13 @@ func (us userService) SignUp(ctx *gin.Context, param *model.SignUpRequestParam) 
 	// insert user
 	user, err := us.repo.CreateUser(ctx, *createUserParam)
 	if err != nil {
-		return
+		return response, customError.NewInternalError(err)
 	}
 
 	// generate JWT token
 	token, err := util.GenerateToken(int(user.ID), util.TOKEN_DEFAULT_DURATION)
 	if err != nil {
-		return
+		return response, customError.NewInternalError(err)
 	}
 	// response user.id and token
 	response = model.SignUpResponse{
@@ -61,23 +61,25 @@ func (us userService) SignUp(ctx *gin.Context, param *model.SignUpRequestParam) 
 	return
 }
 
-func (u *userService) Login(ctx *gin.Context, param *model.LoginRequestParam) (response model.LoginResponse, err error) {
+func (u *userService) Login(ctx context.Context, param *model.LoginRequestParam) (response model.LoginResponse, err error) {
 	// check user exist
 	user, err := u.repo.GetUserByName(ctx, param.Name)
 	if err != nil {
-
-		return
+		if err == sql.ErrNoRows {
+			return response, customError.NewBadRequestError(err)
+		}
+		return response, customError.NewInternalError(err)
 	}
 
 	// check password after encrypt equal database
 	if !util.CheckPassword(param.Password, user.Password) {
-		return response, errors.New("password isn't correct")
+		return response, customError.NewBadRequestError(errors.New("password isn't correct"))
 	}
 
 	// generate JWT Token
 	token, err := util.GenerateToken(int(user.ID), util.TOKEN_DEFAULT_DURATION)
 	if err != nil {
-		return
+		return response, customError.NewInternalError(err)
 	}
 
 	// respone user.id and token
@@ -89,7 +91,7 @@ func (u *userService) Login(ctx *gin.Context, param *model.LoginRequestParam) (r
 	return
 }
 
-func (u userService) GetUserInfo(ctx *gin.Context, userId int) (response model.GetUserInfoResponse, err error) {
+func (u userService) GetUserInfo(ctx context.Context, userId int) (response model.GetUserInfoResponse, err error) {
 	user, err := u.repo.GetUser(ctx, int32(userId))
 	if err != nil {
 		return

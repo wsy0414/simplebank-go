@@ -31,3 +31,37 @@ func (q *Queries) CreateActivity(ctx context.Context, arg CreateActivityParams) 
 	)
 	return i, err
 }
+
+const getActivity = `-- name: GetActivity :many
+select id, user_id, amount, created_at
+from activity_log
+where user_id = $1
+`
+
+func (q *Queries) GetActivity(ctx context.Context, userID int32) ([]ActivityLog, error) {
+	rows, err := q.db.QueryContext(ctx, getActivity, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ActivityLog
+	for rows.Next() {
+		var i ActivityLog
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Amount,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

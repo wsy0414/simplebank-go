@@ -1,4 +1,99 @@
 definitions:
+  model.Balance:
+    properties:
+      balance:
+        type: string
+      currency:
+        type: string
+    type: object
+  model.CreateBalanceRequest:
+    properties:
+      amount:
+        minimum: 0
+        type: number
+      currency:
+        type: string
+    required:
+    - amount
+    - currency
+    type: object
+  model.CreateBalanceResponse:
+    properties:
+      balance:
+        type: string
+      currency:
+        type: string
+    type: object
+  model.CustomTime:
+    properties:
+      time.Time:
+        type: string
+    type: object
+  model.DepositeRequestParam:
+    properties:
+      amount:
+        type: number
+      currency:
+        type: string
+    required:
+    - amount
+    - currency
+    type: object
+  model.DepositeResponse:
+    properties:
+      balance:
+        type: string
+      currency:
+        type: string
+    type: object
+  model.GetBalanceResponse:
+    properties:
+      balance:
+        type: string
+      currency:
+        type: string
+    type: object
+  model.GetUserInfoResponse:
+    properties:
+      balance:
+        items:
+          $ref: '#/definitions/model.Balance'
+        type: array
+      birthdate:
+        $ref: '#/definitions/model.CustomTime'
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  model.ListActivityResponse:
+    properties:
+      amount:
+        type: string
+      createAt:
+        type: string
+      userId:
+        type: integer
+    type: object
+  model.LoginRequestParam:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - name
+    - password
+    type: object
+  model.LoginResponse:
+    properties:
+      id:
+        type: integer
+      token:
+        type: string
+    type: object
   model.SignUpRequestParam:
     properties:
       birthdate:
@@ -24,6 +119,43 @@ definitions:
       token:
         type: string
     type: object
+  model.TransferRequestParam:
+    properties:
+      amount:
+        type: number
+      currency:
+        type: string
+      toUserId:
+        type: integer
+    required:
+    - amount
+    - currency
+    - toUserId
+    type: object
+  model.TransferResponse:
+    properties:
+      balance:
+        type: string
+      currency:
+        type: string
+    type: object
+  model.WithdrawRequestParam:
+    properties:
+      amount:
+        type: number
+      currency:
+        type: string
+    required:
+    - amount
+    - currency
+    type: object
+  model.WithdrawResponse:
+    properties:
+      balance:
+        type: string
+      currency:
+        type: string
+    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -41,6 +173,208 @@ info:
   title: Swagger SimpleBank API
   version: "1.0"
 paths:
+  /balance:
+    post:
+      consumes:
+      - application/json
+      description: CreateBalance
+      parameters:
+      - description: jwtToken
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: CreateBalanceRequest
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateBalanceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.CreateBalanceResponse'
+      summary: CreateBalance
+      tags:
+      - balance
+  /balance/{currency}:
+    get:
+      consumes:
+      - application/json
+      description: get specify balance by user
+      parameters:
+      - description: jwtToken
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: currency(TWD||USD||JPN)
+        in: path
+        name: currency
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GetBalanceResponse'
+      summary: GetBalance
+      tags:
+      - balance
+  /balance/activity:
+    get:
+      consumes:
+      - application/json
+      description: get activity log by user
+      parameters:
+      - description: jwtToken
+        in: header
+        name: authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.ListActivityResponse'
+            type: array
+      summary: GetActivity
+      tags:
+      - balance
+  /balance/deposite:
+    post:
+      consumes:
+      - application/json
+      description: deposite amount into specify currency balance
+      parameters:
+      - description: jwtToken
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: DepositeRequestParam
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.DepositeRequestParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.DepositeResponse'
+      summary: Deposite
+      tags:
+      - balance
+  /balance/list:
+    get:
+      consumes:
+      - application/json
+      description: get all balance by user
+      parameters:
+      - description: jwtToken
+        in: header
+        name: authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.GetBalanceResponse'
+            type: array
+      summary: ListBalance
+      tags:
+      - balance
+  /balance/transfer:
+    post:
+      consumes:
+      - application/json
+      description: transfer amount from specify currency balance to other user's  balance
+      parameters:
+      - description: jwtToken
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: TransferRequestParam
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.TransferRequestParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.TransferResponse'
+      summary: Transfer
+      tags:
+      - balance
+  /balance/withdraw:
+    post:
+      consumes:
+      - application/json
+      description: withdraw amount from specify currency balance
+      parameters:
+      - description: jwtToken
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: WithdrawRequestParam
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.WithdrawRequestParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.WithdrawResponse'
+      summary: Withdraw
+      tags:
+      - balance
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: login
+      parameters:
+      - description: LoginRequestParam
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginRequestParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.LoginResponse'
+      summary: Login
+      tags:
+      - user
   /signup:
     post:
       consumes:
@@ -62,5 +396,26 @@ paths:
             $ref: '#/definitions/model.SignUpResponse'
       summary: SignUp
       tags:
-      - accounts
+      - user
+  /user:
+    get:
+      consumes:
+      - application/json
+      description: GetUserInfo
+      parameters:
+      - description: jwtToken
+        in: header
+        name: authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GetUserInfoResponse'
+      summary: GetUserInfo
+      tags:
+      - user
 swagger: "2.0"

@@ -1,9 +1,20 @@
 package enum
 
-type CurrencyEnum string
-
 const (
-	TWD CurrencyEnum = "TWD"
-	USD CurrencyEnum = "USD"
-	JPN CurrencyEnum = "JPN"
+	TWD string = "TWD"
+	USD string = "USD"
+	JPN string = "JPN"
 )
+
+func IsCurrencyValid(currency string) bool {
+	switch currency {
+	case TWD:
+		return true
+	case USD:
+		return true
+	case JPN:
+		return true
+	default:
+		return false
+	}
+}
