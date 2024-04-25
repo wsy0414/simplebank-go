@@ -27,8 +27,8 @@ func NewUserController(router *gin.Engine, trans ut.Translator, userService serv
 		userService: userService,
 		trans:       trans,
 	}
-	router.POST("/signup", controller.SignUp)
-	router.POST("/login", controller.Login)
+	router.POST("/signup", controller.SignUp, middleware.HandleError())
+	router.POST("/login", controller.Login, middleware.HandleError())
 	router.GET("/user", middleware.CheckToken(), controller.GetUserInfo, middleware.HandleError())
 }
 
@@ -75,13 +75,13 @@ func (uc userController) Login(ctx *gin.Context) {
 			ctx.JSON(http.StatusBadRequest, errs.Translate(uc.trans))
 			return
 		}
-		ctx.JSON(http.StatusBadRequest, errorResponse(err.Error()))
+		ctx.Error(err)
 		return
 	}
 
 	response, err := uc.userService.Login(ctx, &param)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err.Error()))
+		ctx.Error(err)
 		return
 	}
 
@@ -102,7 +102,7 @@ func (uc userController) GetUserInfo(ctx *gin.Context) {
 	userId := ctx.GetInt("userId")
 	response, err := uc.userService.GetUserInfo(ctx, int(userId))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err.Error()))
+		ctx.Error(err)
 		return
 	}
 

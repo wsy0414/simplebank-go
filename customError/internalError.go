@@ -7,16 +7,10 @@ type CustomError struct {
 	StatusCode int
 }
 
-type InternalError struct {
-	*CustomError
-}
-
-func NewInternalError(err error) *InternalError {
-	return &InternalError{
-		CustomError: &CustomError{
-			Err:        err,
-			StatusCode: http.StatusInternalServerError,
-		},
+func NewInternalError(err error) *CustomError {
+	return &CustomError{
+		Err:        err,
+		StatusCode: http.StatusInternalServerError,
 	}
 }
 
@@ -24,15 +18,9 @@ func (e *CustomError) Error() string {
 	return e.Err.Error()
 }
 
-type BadRequestError struct {
-	*CustomError
-}
-
-func NewBadRequestError(err error) *BadRequestError {
-	return &BadRequestError{
-		&CustomError{
-			Err:        err,
-			StatusCode: http.StatusBadRequest,
-		},
+func NewBadRequestError(err error) *CustomError {
+	return &CustomError{
+		Err:        err,
+		StatusCode: http.StatusBadRequest,
 	}
 }

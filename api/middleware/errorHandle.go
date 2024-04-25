@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"errors"
 	"net/http"
 	"simplebank/customError"
 
@@ -15,8 +14,8 @@ func HandleError() gin.HandlerFunc {
 			return
 		}
 		err := ctx.Errors[0]
-		var customError customError.CustomError
-		if errors.As(err, &customError) {
+
+		if customError, ok := err.Err.(*customError.CustomError); ok {
 			ctx.JSON(customError.StatusCode, errorResponse(customError.Error()))
 		} else {
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err.Error()))

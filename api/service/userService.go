@@ -8,6 +8,8 @@ import (
 	"simplebank/customError"
 	"simplebank/db/sqlc"
 	"simplebank/util"
+
+	"github.com/lib/pq"
 )
 
 type UserService interface {
@@ -44,6 +46,11 @@ func (us userService) SignUp(ctx context.Context, param *model.SignUpRequestPara
 	// insert user
 	user, err := us.repo.CreateUser(ctx, *createUserParam)
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			if pqErr.Code.Name() == "unique_violation" {
+				return response, customError.NewBadRequestError(err)
+			}
+		}
 		return response, customError.NewInternalError(err)
 	}
 
@@ -94,12 +101,19 @@ func (u *userService) Login(ctx context.Context, param *model.LoginRequestParam)
 func (u userService) GetUserInfo(ctx context.Context, userId int) (response model.GetUserInfoResponse, err error) {
 	user, err := u.repo.GetUser(ctx, int32(userId))
 	if err != nil {
-		return
+		if err == sql.ErrNoRows {
+			return response, customError.NewBadRequestError(errors.New("this user is not exist"))
+		}
+		return response, customError.NewInternalError(err)
 	}
 
 	balanceList, err := u.repo.GetBalanceByUser(ctx, int32(userId))
 	if err != nil {
-		return
+		if err == sql.ErrNoRows {
+			balanceList = []sqlc.Balance{}
+		} else {
+			return
+		}
 	}
 
 	var list = make([]model.Balance, 0)

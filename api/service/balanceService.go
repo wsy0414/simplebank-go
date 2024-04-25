@@ -46,7 +46,7 @@ func (service *balanceService) CreateBalance(
 	if err != nil {
 		if pgErr, ok := err.(*pq.Error); ok {
 			// unique valid
-			if pgErr.Code == "23505" {
+			if pgErr.Code.Name() == "unique_violation" {
 				return response, customError.NewBadRequestError(errors.New("the Balance already be created"))
 			}
 		}
@@ -89,12 +89,10 @@ func (service *balanceService) GetBalance(ctx context.Context, currency string) 
 
 func (service *balanceService) ListBalance(ctx context.Context) (response []model.GetBalanceResponse, err error) {
 	userId := getUserId(ctx)
+	response = make([]model.GetBalanceResponse, 0)
 
 	balanceList, err := service.repo.GetBalanceByUser(ctx, int32(userId))
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return response, customError.NewBadRequestError(errors.New("not yet create any balance"))
-		}
 		return response, customError.NewInternalError(err)
 	}
 

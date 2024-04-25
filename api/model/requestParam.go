@@ -19,7 +19,7 @@ type LoginRequestParam struct {
 
 type CreateBalanceRequest struct {
 	Currency string  `json:"currency" binding:"required,currencyValidate"`
-	Amount   float64 `json:"amount" binding:"required,gte=0"`
+	Amount   float64 `json:"amount"`
 }
 
 type BalanceRequest struct {

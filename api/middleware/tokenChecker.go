@@ -17,7 +17,7 @@ func CheckToken() gin.HandlerFunc {
 		jwtToken := ctx.GetHeader("authorization")
 		tokens := strings.Fields(jwtToken)
 		if len(tokens) == 0 {
-			ctx.AbortWithError(http.StatusNonAuthoritativeInfo, errors.New("must have authorization header"))
+			ctx.AbortWithError(http.StatusUnauthorized, errors.New("must have authorization header"))
 			return
 		}
 		if strings.ToLower(tokens[0]) != "bearer" {
