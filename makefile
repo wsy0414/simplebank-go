@@ -12,10 +12,16 @@ migrateup:
 migratedown:
 	migrate -path db/migrations -database "$(DB_URL)" -verbose down
 
+migrateup4:
+	migrate -path db/migrations -database "$(DB_URL)" -verbose up 4
+
 sqlc:
 	sqlc generate
 
 server:
 	go run main.go
 
-.PHONY: postgres createdb migrateup migratedown sqlc server
+docker:
+	docker-compose up
+
+.PHONY: postgres createdb migrateup migratedown sqlc server docker migrateup4
