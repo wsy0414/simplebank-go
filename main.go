@@ -2,14 +2,20 @@ package main
 
 import (
 	"database/sql"
+	"log"
+	"net"
 	"simplebank/api"
 	"simplebank/config"
 	"simplebank/db/sqlc"
 	_ "simplebank/flags"
+	"simplebank/gapi"
+	"simplebank/pb"
 
 	_ "simplebank/docs"
 
 	_ "github.com/lib/pq"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 //	@title			Swagger SimpleBank API
@@ -33,7 +39,8 @@ func main() {
 	db := connDB()
 	server := api.NewServer(sqlc.NewStore(db))
 
-	server.Run(config.ConfigVal.Server.Port)
+	go server.Run(config.ConfigVal.Server.Port)
+	runGrpcServer(&config.ConfigVal, sqlc.NewStore(db))
 }
 
 // connDB return a sql package's DB implement
@@ -44,4 +51,23 @@ func connDB() *sql.DB {
 	}
 
 	return db
+}
+
+func runGrpcServer(config *config.Config, store sqlc.Store) {
+	server := gapi.NewServer(store)
+
+	grpcServer := grpc.NewServer()
+	pb.RegisterSimpleBankServer(grpcServer, server)
+	reflection.Register(grpcServer)
+
+	listener, err := net.Listen("tcp", config.Grpc.Port)
+	if err != nil {
+		log.Fatal("cannot create listener", err)
+	}
+
+	log.Println("grpc server listen address", listener.Addr().String())
+	err = grpcServer.Serve(listener)
+	if err != nil {
+		log.Fatal("cannot connect server")
+	}
 }

@@ -3,3 +3,5 @@ db:
   source: postgresql://root:root@postgres:5432/simple_bank?sslmode=disable
 server:
   port: :8080
+grpc:
+  port: :9090

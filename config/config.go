@@ -16,9 +16,14 @@ type Server struct {
 	Port string `mapstructure:"port"`
 }
 
+type Grpc struct {
+	Port string `mapstructure:"port"`
+}
+
 type Config struct {
 	Database Database `mapstructure:"db"`
 	Server   Server   `mapstructure:"server"`
+	Grpc     Grpc     `mapstructure:"grpc"`
 }
 
 var ConfigVal Config

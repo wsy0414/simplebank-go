@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package pb;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "simplebank/pb";
+
+message SignUpUserRequest {
+    string name = 1;
+    string password = 2;
+    string email = 3;
+    google.protobuf.Timestamp birthdate = 4;
+}
+
+message SignUpUserResponse {
+    int32 id = 1;
+    string token = 2;
+}
