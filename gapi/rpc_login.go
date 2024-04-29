@@ -16,7 +16,7 @@ func (server Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Login
 	}
 	response, err := server.userService.Login(ctx, &param)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error", err.Error())
+		return nil, status.Errorf(codes.Internal, "Internal Error, %s", err.Error())
 	}
 
 	return &pb.LoginResponse{

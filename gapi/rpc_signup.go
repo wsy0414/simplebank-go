@@ -11,18 +11,18 @@ import (
 
 func (server Server) SignUp(ctx context.Context, req *pb.SignUpUserRequest) (*pb.SignUpUserResponse, error) {
 	param := model.SignUpRequestParam{
-		Name: req.Name,
-		Password: req.Password,
-		Email: req.Password,
+		Name:      req.Name,
+		Password:  req.Password,
+		Email:     req.Password,
 		Birthdate: req.Birthdate.AsTime(),
 	}
 	response, err := server.userService.SignUp(ctx, &param)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "create user failed", err.Error())
+		return nil, status.Errorf(codes.Internal, "create user failed, %s", err.Error())
 	}
 
 	return &pb.SignUpUserResponse{
-		Id: int32(response.ID),
+		Id:    int32(response.ID),
 		Token: response.Token,
 	}, nil
 }
